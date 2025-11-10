@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hotel WC - Calculadora de precios</title>
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #e0f2ff, #f8fafc);
+      --card:#ffffff;
+      --accent:#2563eb;
+      --accent2:#1d4ed8;
+      --muted:#6b7280;
+      --success:#059669;
+      --radius:16px;
+      --shadow:0 10px 25px rgba(0,0,0,0.05);
+      font-family:'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+    *{box-sizing:border-box;transition:all 0.2s ease}
+    body{margin:0;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px}
+    .container{width:100%;max-width:960px}
+    header{display:flex;gap:20px;align-items:center;margin-bottom:30px;animation:fadeIn 0.6s ease}
+    .logo{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:22px;box-shadow:var(--shadow)}
+    h1{margin:0;font-size:24px;color:#111827}
+    p.lead{margin:6px 0 0;color:var(--muted);font-size:15px}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);animation:slideUp 0.5s ease}
+
+    label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+    input[type="number"], select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #d1d5db;font-size:15px;outline:none}
+    input:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+
+    button{background:var(--accent);color:#fff;border:0;padding:12px 18px;border-radius:10px;font-weight:600;cursor:pointer;font-size:15px}
+    button:hover{background:var(--accent2);transform:translateY(-2px)}
+    button.secondary{background:#fff;border:1px solid #d1d5db;color:var(--accent)}
+    button.secondary:hover{background:#f3f4f6;transform:none}
+
+    .result{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .result .line{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;background:#f9fafb}
+    .line.highlight{background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02));font-weight:600;color:var(--success)}
+    .muted{color:var(--muted);font-size:14px}
+    .big{font-size:22px;font-weight:700;color:var(--accent)}
+
+    footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
+
+    @media (max-width:720px){.grid{grid-template-columns:1fr}header{flex-direction:column;text-align:center}}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">WC</div>
+      <div>
+        <h1>Hotel WC — Calculadora de precio por habitación</h1>
+        <p class="lead">Introduce la cantidad de huéspedes y los días. El sistema aplicará IVA (19%) y el descuento correspondiente.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3 style="margin-top:0;color:#111827">Datos de ingreso</h3>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label for="huespedes">Cantidad de huéspedes</label>
+            <input id="huespedes" type="number" min="1" value="1" />
+          </div>
+
+          <div>
+            <label for="dias">Días de estadía</label>
+            <input id="dias" type="number" min="1" value="1" />
+          </div>
+
+          <div>
+            <label for="tipo">Tipo (opcional)</label>
+            <select id="tipo">
+              <option value="auto">Determinar por cantidad de huéspedes (recomendado)</option>
+              <option value="individual">Individual — $2.500 / día</option>
+              <option value="doble">Doble — $4.600 / día</option>
+              <option value="familiar">Familiar — $5.200 / día</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <button id="calcularBtn">Calcular</button>
+            <button class="secondary" id="limpiarBtn">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;color:#111827">Resumen</h3>
+        <div class="result" id="resumen">
+          <div class="line"><div class="muted">Tarifa por día</div><div id="tarifaTxt" class="muted">-</div></div>
+          <div class="line"><div class="muted">Valor base (tarifa × días)</div><div id="baseTxt" class="muted">-</div></div>
+          <div class="line"><div class="muted">Valor con IVA (19%)</div><div id="ivaTxt" class="muted">-</div></div>
+          <div class="line"><div class="muted">Descuento aplicado</div><div id="descTxt" class="muted">-</div></div>
+          <div class="line highlight"><div>Total a pagar</div><div id="totalTxt" class="big">-</div></div>
+        </div>
+        <footer>
+          Tarifas: Individual $2.500 — Doble $4.600 — Familiar $5.200. Descuentos: 1 huésped 5% | 2 huéspedes 9% | 3+ 15%.
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TARIFA_INDIVIDUAL = 2500;
+    const TARIFA_DOBLE = 4600;
+    const TARIFA_FAMILIAR = 5200;
+    const IVA = 0.19;
+
+    const huespedesInput = document.getElementById('huespedes');
+    const diasInput = document.getElementById('dias');
+    const tipoSelect = document.getElementById('tipo');
+    const calcularBtn = document.getElementById('calcularBtn');
+    const limpiarBtn = document.getElementById('limpiarBtn');
+
+    const tarifaTxt = document.getElementById('tarifaTxt');
+    const baseTxt = document.getElementById('baseTxt');
+    const ivaTxt = document.getElementById('ivaTxt');
+    const descTxt = document.getElementById('descTxt');
+    const totalTxt = document.getElementById('totalTxt');
+
+    function formatCOP(value){
+      return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value);
+    }
+
+    function calcular(){
+      const huespedes = Math.max(1, Math.floor(Number(huespedesInput.value) || 1));
+      const dias = Math.max(1, Math.floor(Number(diasInput.value) || 1));
+
+      let tarifa, descuentoPct, motivo;
+
+      if(tipoSelect.value === 'individual'){
+        tarifa = TARIFA_INDIVIDUAL; descuentoPct = 0.05; motivo='Individual (forzado)';
+      } else if(tipoSelect.value === 'doble'){
+        tarifa = TARIFA_DOBLE; descuentoPct = 0.09; motivo='Doble (forzado)';
+      } else if(tipoSelect.value === 'familiar'){
+        tarifa = TARIFA_FAMILIAR; descuentoPct = 0.15; motivo='Familiar (forzado)';
+      } else {
+        if(huespedes === 1){ tarifa = TARIFA_INDIVIDUAL; descuentoPct = 0.05; motivo='1 huésped'; }
+        else if(huespedes === 2){ tarifa = TARIFA_DOBLE; descuentoPct = 0.09; motivo='2 huéspedes'; }
+        else { tarifa = TARIFA_FAMILIAR; descuentoPct = 0.15; motivo=${huespedes} huéspedes; }
+      }
+
+      const valor_base = tarifa * dias;
+      const valor_con_iva = valor_base * (1 + IVA);
+      const descuento = valor_con_iva * descuentoPct;
+      const total_pagar = valor_con_iva - descuento;
+
+      tarifaTxt.textContent = ${formatCOP(tarifa)} / día — ${motivo};
+      baseTxt.textContent = ${formatCOP(valor_base)} (${dias} día(s) × ${formatCOP(tarifa)});
+      ivaTxt.textContent = ${formatCOP(valor_con_iva)} (IVA incluido);
+      descTxt.textContent = ${(descuentoPct*100).toFixed(0)}% → - ${formatCOP(descuento)};
+      totalTxt.textContent = ${formatCOP(total_pagar)};
+    }
+
+    calcularBtn.addEventListener('click', calcular);
+    limpiarBtn.addEventListener('click', ()=>{
+      huespedesInput.value = 1; diasInput.value = 1; tipoSelect.value = 'auto';
+      tarifaTxt.textContent = baseTxt.textContent = ivaTxt.textContent = descTxt.textContent = totalTxt.textContent = '-';
+    });
+
+    [huespedesInput,diasInput].forEach(i=>i.addEventListener('keydown', e=>{ if(e.key === 'Enter') calcular(); }));
+    calcular();
+  </script>
+</body>
+</html>
